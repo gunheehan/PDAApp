@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
-using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 
 namespace PDAApp;
