@@ -1,70 +1,274 @@
-.scan-container {
-    height: 100vh;
+.scan-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+/* 카메라 꺼진 상태 */
+.content {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(20px, 5vw, 30px);
     padding: 20px;
 }
 
-.camera-view {
-    flex: 1;
-    margin: 20px 0;
-    border: 2px solid #007bff;
-    border-radius: 8px;
-    overflow: hidden;
+.content h2 {
+    margin: 0;
+    color: #333;
+    font-size: clamp(24px, 5vw, 32px);
 }
 
 .result-box {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
+    background: white;
+    padding: clamp(20px, 5vw, 30px);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     text-align: center;
+    width: 100%;
+    max-width: min(400px, 90vw);
 }
 
 .result-box h4 {
-    color: #155724;
-    margin-bottom: 10px;
+    margin: 0 0 15px 0;
+    color: #28a745;
+    font-size: clamp(16px, 4vw, 20px);
 }
 
-.result-box p {
-    font-size: 1.2em;
+.barcode-value {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: clamp(16px, 4vw, 20px);
     font-weight: bold;
-    color: #155724;
+    color: #333;
     word-break: break-all;
+    margin-bottom: 20px;
 }
 
-.controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.btn {
-    padding: 12px 24px;
+.btn-scan {
+    padding: clamp(16px, 4vw, 20px) clamp(40px, 10vw, 60px);
+    background: #007bff;
+    color: white;
     border: none;
-    border-radius: 6px;
-    font-size: 16px;
+    border-radius: 12px;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.btn-primary {
-    background-color: #007bff;
+.btn-scan:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: #6c757d;
     color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: clamp(14px, 3.5vw, 16px);
+    cursor: pointer;
 }
 
-.btn-success {
-    background-color: #28a745;
+/* 카메라 오버레이 - 투명 배경 */
+.camera-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1001;
+    pointer-events: none; /* 카메라 뷰가 터치 가능하도록 */
+}
+
+/* 인터랙션이 필요한 요소만 pointer-events 활성화 */
+.camera-header,
+.camera-controls {
+    pointer-events: auto;
+}
+
+.camera-header {
+    padding: clamp(15px, 4vw, 20px);
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.camera-header h3 {
+    margin: 0;
     color: white;
+    font-size: clamp(16px, 4vw, 20px);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-.btn-danger {
-    background-color: #dc3545;
+.scan-guide {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(15px, 4vw, 20px);
+    padding: 20px;
+}
+
+.scan-frame {
+    width: min(280px, 70vw);
+    height: min(280px, 70vw);
+    max-width: 350px;
+    max-height: 350px;
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    /* 어두운 오버레이로 프레임 외부 강조 */
+    box-shadow:
+            0 0 0 9999px rgba(0, 0, 0, 0.6),
+            inset 0 0 0 2px rgba(0, 255, 0, 0.8);
+}
+
+/* 코너 마크 */
+.corner {
+    position: absolute;
+    width: clamp(30px, 7vw, 40px);
+    height: clamp(30px, 7vw, 40px);
+    border: 4px solid #00ff00;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.8));
+}
+
+.corner.top-left {
+    top: -4px;
+    left: -4px;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 16px 0 0 0;
+}
+
+.corner.top-right {
+    top: -4px;
+    right: -4px;
+    border-left: none;
+    border-bottom: none;
+    border-radius: 0 16px 0 0;
+}
+
+.corner.bottom-left {
+    bottom: -4px;
+    left: -4px;
+    border-right: none;
+    border-top: none;
+    border-radius: 0 0 0 16px;
+}
+
+.corner.bottom-right {
+    bottom: -4px;
+    right: -4px;
+    border-left: none;
+    border-top: none;
+    border-radius: 0 0 16px 0;
+}
+
+/* 스캔 라인 애니메이션 */
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00ff00 20%, #00ff00 80%, transparent);
+    animation: scan 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    filter: blur(1px);
+}
+
+@keyframes scan {
+    0%, 100% {
+        top: 10%;
+        opacity: 0.8;
+    }
+    50% {
+        top: 85%;
+        opacity: 1;
+    }
+}
+
+.guide-text {
     color: white;
+    font-size: clamp(14px, 3.5vw, 16px);
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 12px 24px;
+    border-radius: 24px;
+    max-width: 90vw;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn:hover {
-    opacity: 0.9;
+.camera-controls {
+    padding: clamp(20px, 5vw, 30px);
+    background: linear-gradient(0deg, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.5) 80%, transparent 100%);
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.btn-cancel {
+    padding: clamp(14px, 3.5vw, 16px) clamp(40px, 10vw, 48px);
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: clamp(16px, 4vw, 18px);
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(220,53,69,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(220,53,69,0.5);
+}
+
+/* 작은 화면 최적화 */
+@media (max-width: 375px) {
+    .scan-frame {
+        width: 75vw;
+        height: 75vw;
+    }
+}
+
+/* 매우 작은 화면 */
+@media (max-height: 667px) {
+    .scan-guide {
+        padding: 10px;
+    }
+
+    .scan-frame {
+        width: min(240px, 60vw);
+        height: min(240px, 60vw);
+    }
+}
+
+/* 가로 모드 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .scan-frame {
+        width: min(200px, 35vh);
+        height: min(200px, 35vh);
+    }
+
+    .camera-header,
+    .camera-controls {
+        padding: 10px;
+    }
 }

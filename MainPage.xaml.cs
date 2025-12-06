@@ -1,32 +1,39 @@
-﻿using System.Linq;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Dispatching;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+using PDAApp.Handlers;
 
 namespace PDAApp;
 
 public partial class MainPage : ContentPage
 {
+    private BlazorWebView? _blazorWebView;
+
     public MainPage()
     {
         InitializeComponent();
-        CameraBarcodeReaderView.Options = new ZXing.Net.Maui.BarcodeReaderOptions
-        {
-            Formats = ZXing.Net.Maui.BarcodeFormat.Ean13, // Set to recognize EAN-13 barcodes
-            AutoRotate = true, // Automatically rotate the image to detect barcodes from different angles
-            Multiple = true // Allow the detection of multiple barcodes at once
-        };
+        InitializeBlazorWebView();
+        Loaded += OnPageLoaded;
     }
-    
-    protected void BarcodesDetected(object sender, ZXing.Net.Maui.BarcodeDetectionEventArgs e)
-    {
-        var first = e.Results?.FirstOrDefault();
-        if (first is null) {
-            return;
-        }
 
-        Dispatcher.DispatchAsync(async () =>
+    private void InitializeBlazorWebView()
+    {
+        _blazorWebView = new BlazorWebView
         {
-            await DisplayAlert("Barcode Detected", first.Value, "OK");
+            HostPage = "wwwroot/index.html"
+        };
+
+        _blazorWebView.RootComponents.Add(new RootComponent
+        {
+            Selector = "#app",
+            ComponentType = typeof(Components.Routes)
         });
+
+        // BlazorWebView를 Grid에 추가
+        MainGrid.Children.Add(_blazorWebView);
+    }
+
+    private void OnPageLoaded(object? sender, EventArgs e)
+    {
+        // 카메라 뷰를 BlazorWebView 뒤에 추가
+        CameraViewHandler.CreateCameraView(MainGrid, _blazorWebView);
     }
 }

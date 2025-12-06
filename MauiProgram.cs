@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
+using PDAApp.Services;
 using ZXing.Net.Maui.Controls;
 
 namespace PDAApp;
@@ -21,6 +22,7 @@ public static class MauiProgram
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
+        builder.Services.AddSingleton<ScannerService>();
 
         return builder.Build();
     }

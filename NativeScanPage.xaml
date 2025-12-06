@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             x:Class="PDAApp.NativeScanPage"
+             Title="바코드 스캔">
+    
+    <Grid>
+        <!-- 카메라 뷰 -->
+        <controls:CameraBarcodeReaderView
+            x:Name="CameraView"
+            IsDetecting="True"
+            BarcodesDetected="OnBarcodesDetected" />
+        
+        <!-- UI 오버레이 -->
+        <VerticalStackLayout VerticalOptions="Fill">
+            <!-- 상단 헤더 -->
+            <Frame BackgroundColor="#80000000" 
+                   Padding="20"
+                   CornerRadius="0"
+                   HasShadow="False">
+                <Label Text="바코드 스캔" 
+                       TextColor="White"
+                       FontSize="20"
+                       HorizontalOptions="Center"/>
+            </Frame>
+            
+            <!-- 중앙 공간 (카메라 보이는 영역) -->
+            <Grid VerticalOptions="FillAndExpand">
+                <Frame WidthRequest="280"
+                       HeightRequest="280"
+                       BorderColor="Lime"
+                       BackgroundColor="Transparent"
+                       CornerRadius="12"
+                       Padding="0"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center">
+                    <Label Text="바코드를 화면에 맞춰주세요"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Frame>
+            </Grid>
+            
+            <!-- 하단 컨트롤 -->
+            <Frame BackgroundColor="#80000000" 
+                   Padding="30"
+                   CornerRadius="0"
+                   HasShadow="False">
+                <Button Text="취소"
+                        BackgroundColor="#dc3545"
+                        TextColor="White"
+                        Clicked="OnCancelClicked"
+                        WidthRequest="200"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"/>
+            </Frame>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

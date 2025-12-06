@@ -1,103 +1,111 @@
 @page "/scan"
-@using Microsoft.Maui.ApplicationModel
-@using ZXing.Net.Maui
+@using PDAApp.Services
+@inject ScannerService Scanner
+@inject IJSRuntime JS
 
-<div class="scan-container">
-    <h3>바코드 스캔</h3>
-
-    @if (!string.IsNullOrEmpty(scannedBarcode))
+<div class="scan-page">
+    @if (!isScanning)
     {
+    <!-- 카메라 꺼진 상태 -->
+    <div class="content">
+        <h2>바코드 스캔</h2>
+
+        @if (!string.IsNullOrEmpty(scannedBarcode))
+        {
         <div class="result-box">
-            <h4>스캔 결과:</h4>
-            <p>@scannedBarcode</p>
-            <button class="btn btn-primary" @onclick="ResetScan">다시 스캔</button>
+            <h4>스캔 결과</h4>
+            <div class="barcode-value">@scannedBarcode</div>
+            <button class="btn-secondary" @onclick="ClearResult">
+                결과 지우기
+            </button>
         </div>
+        }
+
+        <button class="btn-scan" @onclick="StartScan">
+            📷 스캔 시작
+        </button>
+    </div>
     }
     else
     {
-        <div class="camera-view">
-            <CameraBarcodeReaderView 
-                @ref="cameraBarcodeReaderView"
-                OnDetected="OnBarcodeDetected"
-                IsDetecting="isDetecting"
-                BarCodeOptions="barcodeOptions" />
+    <!-- 카메라 오버레이 -->
+    <div class="camera-overlay">
+        <div class="camera-header">
+            <h3>바코드 스캔</h3>
         </div>
-        
-        <div class="controls">
-            <button class="btn btn-success" @onclick="StartScanning">스캔 시작</button>
-            <button class="btn btn-danger" @onclick="StopScanning">스캔 중지</button>
+
+        <div class="scan-guide">
+            <div class="scan-frame">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="scan-line"></div>
+            </div>
+            <p class="guide-text">바코드를 프레임 안에 맞춰주세요</p>
         </div>
+
+        <div class="camera-controls">
+            <button class="btn-cancel" @onclick="CancelScan">
+                취소
+            </button>
+        </div>
+    </div>
     }
 </div>
 
 @code {
-    private ElementReference cameraBarcodeReaderView;
+    private bool isScanning = false;
     private string? scannedBarcode;
-    private bool isDetecting = false;
-    
-    private BarcodeReaderOptions barcodeOptions = new BarcodeReaderOptions
-    {
-        Formats = BarcodeFormats.All,
-        AutoRotate = true,
-        Multiple = false
-    };
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task StartScan()
     {
-        if (firstRender)
+        isScanning = true;
+        await SetPageBackground("transparent");
+        StateHasChanged();
+
+        await Task.Delay(100);
+
+        try
         {
-            await CheckCameraPermission();
+            scannedBarcode = await Scanner.ScanAsync();
         }
-    }
-
-    private async Task CheckCameraPermission()
-    {
-        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
-        
-        if (status != PermissionStatus.Granted)
+        catch (TaskCanceledException)
         {
-            status = await Permissions.RequestAsync<Permissions.Camera>();
         }
-
-        if (status == PermissionStatus.Granted)
+        finally
         {
-            isDetecting = true;
+            isScanning = false;
+            await SetPageBackground("#f5f5f5");
             StateHasChanged();
         }
     }
 
-    private void OnBarcodeDetected(BarcodeDetectionEventArgs e)
+    private async Task CancelScan()
     {
-        if (e.Results?.Length > 0)
+        Scanner.CancelScan();
+        isScanning = false;
+        await SetPageBackground("#f5f5f5");
+        StateHasChanged();
+    }
+
+    private void ClearResult()
+    {
+        scannedBarcode = null;
+        StateHasChanged();
+    }
+
+    private async Task SetPageBackground(string color)
+    {
+        try
         {
-            var result = e.Results[0];
-            scannedBarcode = result.Value;
-            isDetecting = false;
-            
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                StateHasChanged();
-            });
+            await JS.InvokeVoidAsync("eval",
+                $"document.querySelector('.scan-page').style.setProperty('--page-background', '{color}')");
+        }
+        catch
+        {
+// JS 호출 실패 시 무시
         }
     }
 
-    private void StartScanning()
-    {
-        scannedBarcode = null;
-        isDetecting = true;
-        StateHasChanged();
-    }
-
-    private void StopScanning()
-    {
-        isDetecting = false;
-        StateHasChanged();
-    }
-
-    private void ResetScan()
-    {
-        scannedBarcode = null;
-        isDetecting = true;
-        StateHasChanged();
-    }
 }
