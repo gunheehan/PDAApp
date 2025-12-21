@@ -11,10 +11,7 @@ public partial class ScanPage : ComponentBase
     private async Task StartScan()
     {
         isScanning = true;
-        await SetPageBackground("transparent");
         StateHasChanged();
-
-        await Task.Delay(100);
 
         try
         {
@@ -22,39 +19,18 @@ public partial class ScanPage : ComponentBase
         }
         catch (TaskCanceledException)
         {
+// 사용자가 취소함
         }
         finally
         {
             isScanning = false;
-            await SetPageBackground("#f5f5f5");
             StateHasChanged();
         }
-    }
-
-    private async Task CancelScan()
-    {
-        Scanner.CancelScan();
-        isScanning = false;
-        await SetPageBackground("#f5f5f5");
-        StateHasChanged();
     }
 
     private void ClearResult()
     {
         scannedBarcode = null;
         StateHasChanged();
-    }
-
-    private async Task SetPageBackground(string color)
-    {
-        try
-        {
-            await JS.InvokeVoidAsync("eval",
-                $"document.querySelector('.scan-page').style.setProperty('--page-background', '{color}')");
-        }
-        catch
-        {
-// JS 호출 실패 시 무시
-        }
     }
 }

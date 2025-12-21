@@ -1,19 +1,15 @@
 @page "/scan"
 @using PDAApp.Services
 @inject ScannerService Scanner
-@inject IJSRuntime JS
 
 <div class="scan-page">
-    @if (!isScanning)
-    {
-    <!-- 카메라 꺼진 상태 -->
     <div class="content">
         <h2>바코드 스캔</h2>
 
         @if (!string.IsNullOrEmpty(scannedBarcode))
         {
         <div class="result-box">
-            <h4>스캔 결과</h4>
+            <h4>✓ 스캔 결과</h4>
             <div class="barcode-value">@scannedBarcode</div>
             <button class="btn-secondary" @onclick="ClearResult">
                 결과 지우기
@@ -21,35 +17,20 @@
         </div>
         }
 
-        <button class="btn-scan" @onclick="StartScan">
-            📷 스캔 시작
+        <button class="btn-scan" @onclick="StartScan" disabled="@isScanning">
+            @if (isScanning)
+            {
+            <span>스캔 중...</span>
+            }
+            else
+            {
+            <span>📷 스캔 시작</span>
+            }
         </button>
-    </div>
-    }
-    else
-    {
-    <!-- 카메라 오버레이 -->
-    <div class="camera-overlay">
-        <div class="camera-header">
-            <h3>바코드 스캔</h3>
-        </div>
 
-        <div class="scan-guide">
-            <div class="scan-frame">
-                <div class="corner top-left"></div>
-                <div class="corner top-right"></div>
-                <div class="corner bottom-left"></div>
-                <div class="corner bottom-right"></div>
-                <div class="scan-line"></div>
-            </div>
-            <p class="guide-text">바코드를 프레임 안에 맞춰주세요</p>
-        </div>
-
-        <div class="camera-controls">
-            <button class="btn-cancel" @onclick="CancelScan">
-                취소
-            </button>
+        <div class="info">
+            <p>버튼을 누르면 카메라 화면이 열립니다</p>
+            <p>바코드를 카메라에 비추면 자동으로 인식됩니다</p>
         </div>
     </div>
-    }
 </div>
