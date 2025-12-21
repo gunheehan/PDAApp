@@ -67,4 +67,8 @@
         <PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AndroidResource Remove="Platforms\Android\Resources\drawable\corner_top_right.xml" />
+    </ItemGroup>
+
 </Project>
